@@ -74,8 +74,9 @@ float calcDist(vec3 p) {
 
     Pros:
       - straightforward and accurate
-    Cost:
-      - 6 extra SDF evaluations
+    Cons:
+      - most expensive: 6 extra SDF evaluations
+      - each axis needs both a positive and negative probe
 */
 vec3 calcNorm(vec3 p) {
     float e = 0.001;
@@ -107,8 +108,9 @@ vec3 calcNorm(vec3 p) {
     Pros:
       - fewer samples than central difference
       - nicely symmetric layout
-    Cost:
-      - 4 extra SDF evaluations
+    Cons:
+      - less immediately intuitive than axis-aligned differences
+      - still costs 4 extra SDF evaluations
 */
 vec3 calcNormTetra(vec3 p) {
     float e = 0.001;
@@ -142,8 +144,9 @@ vec3 calcNormTetra(vec3 p) {
 
     Pros:
       - cheapest of the three when the hit distance is already known
-    Cost:
-      - 3 extra SDF evaluations after the march step
+    Cons:
+      - asymmetric: only probes the positive axis directions
+      - depends on already having a good current SDF value at the hit point
 */
 vec3 calcNormTri(vec3 p, float sdf_d) {
     float e = 0.001;
