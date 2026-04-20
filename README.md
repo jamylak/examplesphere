@@ -38,6 +38,24 @@ For full installation notes, install instructions on other platforms, and source
 
 - [`jamylak/vsdf`](https://github.com/jamylak/vsdf)
 
-## 📚 Reference
+## Reference
 
-- [inigoquilez.com](https://inigoquilez.com/)
+The 4-sample tetrahedral normal trick here is in the same family as Inigo Quilez's write-up on numerical SDF normals:
+
+- [Inigo Quilez: Numerical Normals for SDFs](https://iquilezles.org/articles/normalsSDF/)
+
+## Tiny Map
+
+```text
+3-sample forward difference              4-sample tetrahedral
+
+          +Z                                      k4
+           |                                     /|\
+           |                                    / | \
+           o---- +Y                         k3 -- o -- k1
+          /                                      \ | /
+        +X                                        \|/
+                                                    k2
+```
+
+Legend: 🔴 `+X` / `k1`, 🟢 `+Y` / `k2`, 🔵 `+Z` / `k3`, 🟡 extra tetra sample `k4`.
