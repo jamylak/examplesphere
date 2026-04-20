@@ -24,6 +24,8 @@ It raymarches a sphere, warps the surface with animated 3D noise, and shades it 
 vsdf --toy sphere.frag
 ```
 
+OR.. view it here: [ShaderToy](https://www.shadertoy.com/view/7fjSD1)
+
 ## 🛠️ Install `vsdf`
 
 On macOS, the upstream `vsdf` README currently recommends:
