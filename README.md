@@ -75,8 +75,20 @@ The two extra shaders in this repo are visual explanations of the probe layouts:
 
 - [`tri_3sample.frag`](./tri_3sample.frag):
   shows the 3 forward-difference probe positions at `+X`, `+Y`, and `+Z`, connected back to the origin
+
+
+https://github.com/user-attachments/assets/7e6e9b3a-2278-4d08-99ef-63268427dea3
+
+
+  
 - [`tetra_4sample.frag`](./tetra_4sample.frag):
   shows the 4 tetrahedral probe positions arranged around the origin
+
+  
+
+https://github.com/user-attachments/assets/badf1b8a-246c-4d6a-a11d-80c3235d9cc1
+
+
 
 These demo shaders visualize where the samples are taken. The actual reduced-sample gradient estimators used by the sphere shader are the `calcNormTri(...)` and `calcNormTetra(...)` functions inside [`sphere.frag`](./sphere.frag).
 
