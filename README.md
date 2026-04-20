@@ -38,6 +38,48 @@ For full installation notes, install instructions on other platforms, and source
 
 - [`jamylak/vsdf`](https://github.com/jamylak/vsdf)
 
+## 🧮 Gradient / Normal Estimators
+
+For an SDF, the surface normal comes from the gradient of the distance field:
+
+```glsl
+normal = normalize(gradient(distanceField))
+```
+
+The straightforward way to estimate that gradient is the classic 6-sample central difference, but this repo also includes two lower-sample alternatives in [`sphere.frag`](./sphere.frag):
+
+- `calcNorm(p)`:
+  classic central difference, sampling `+X/-X`, `+Y/-Y`, `+Z/-Z`
+- `calcNormTri(p, d)`:
+  forward difference, sampling only `+X`, `+Y`, `+Z` and reusing the already-known SDF value `d` from the raymarch hit point
+- `calcNormTetra(p)`:
+  tetrahedral sampling, using 4 offset directions arranged around the point
+
+That means the tradeoff is roughly:
+
+- `calcNorm(p)` = 6 extra SDF evaluations
+- `calcNormTetra(p)` = 4 extra SDF evaluations
+- `calcNormTri(p, d)` = 3 extra SDF evaluations when you already have the current SDF value from marching
+
+If you want to swap the method used by the sphere shader, change the normal line in [`sphere.frag`](./sphere.frag):
+
+```glsl
+// vec3 normal = calcNorm(p);         // 6-sample central difference
+// vec3 normal = calcNormTetra(p);    // 4-sample tetrahedral
+vec3 normal = calcNormTri(p, d);      // 3-sample forward difference + current d
+```
+
+## 🎥 Gradient Demo Shaders
+
+The two extra shaders in this repo are visual explanations of the probe layouts:
+
+- [`tri_3sample.frag`](./tri_3sample.frag):
+  shows the 3 forward-difference probe positions at `+X`, `+Y`, and `+Z`, connected back to the origin
+- [`tetra_4sample.frag`](./tetra_4sample.frag):
+  shows the 4 tetrahedral probe positions arranged around the origin
+
+These demo shaders visualize where the samples are taken. The actual reduced-sample gradient estimators used by the sphere shader are the `calcNormTri(...)` and `calcNormTetra(...)` functions inside [`sphere.frag`](./sphere.frag).
+
 ## Reference
 
 The 4-sample tetrahedral normal trick here is in the same family as Inigo Quilez's write-up on numerical SDF normals:
