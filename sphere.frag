@@ -2,6 +2,12 @@ float hash(vec3 p) {
     return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
 }
 
+// Trilinear value noise over the surrounding unit cell:
+//
+//   n000 ---- n100
+//    |          |
+//   n010 ---- n110    then blended along x, y, z using u
+//
 float smoothNoise(vec3 p) {
     vec3 i = floor(p);
     vec3 f = fract(p);
@@ -25,6 +31,20 @@ float smoothNoise(vec3 p) {
     return mix(nxy0, nxy1, u.z);
 }
 
+/*
+    Base shape: sphere
+        d_sphere(p) = length(p) - 1
+
+    Then we domain-warp where the detail noise is sampled:
+
+        p ----------> warpP ----------> noise(warpP * 20)
+         \             ^
+          \            |
+           +-- low-frequency noise(p * 6)
+
+    That lets the surface keep the broad silhouette of a sphere while the
+    local normal field becomes much more interesting.
+*/
 float calcDist(vec3 p) {
     float base = length(p) - 1.0;
     // Domain-warped, higher frequency noise so normal differences are visible.
@@ -34,6 +54,29 @@ float calcDist(vec3 p) {
     return base + warp;
 }
 
+/*
+    6-sample central-difference gradient / normal.
+
+              p + e*z
+                 |
+                 |
+    p - e*y ---- p ---- p + e*y
+               /   \
+          p-e*x     p+e*x
+                 |
+                 |
+              p - e*z
+
+    Each axis is measured symmetrically:
+      d/dx ~= f(p + e*x) - f(p - e*x)
+      d/dy ~= f(p + e*y) - f(p - e*y)
+      d/dz ~= f(p + e*z) - f(p - e*z)
+
+    Pros:
+      - straightforward and accurate
+    Cost:
+      - 6 extra SDF evaluations
+*/
 vec3 calcNorm(vec3 p) {
     float e = 0.001;
     vec2 h = vec2(e, 0.0);
@@ -44,6 +87,29 @@ vec3 calcNorm(vec3 p) {
     ));
 }
 
+/*
+    4-sample tetrahedral gradient / normal.
+
+                  v4 (-,-,+)
+                     /|\
+                    / | \
+                   /  |  \
+      v3 (-,+,-) --   p   -- v1 (+,+,+)
+                   \  |  /
+                    \ | /
+                     \|/
+                  v2 (+,-,-)
+
+    We probe the SDF along four diagonal directions and weight each sample by
+    its direction vector. This collapses the gradient estimate down to four
+    evaluations instead of six.
+
+    Pros:
+      - fewer samples than central difference
+      - nicely symmetric layout
+    Cost:
+      - 4 extra SDF evaluations
+*/
 vec3 calcNormTetra(vec3 p) {
     float e = 0.001;
     vec3 v1 = vec3(1, 1, 1);
@@ -58,7 +124,27 @@ vec3 calcNormTetra(vec3 p) {
     ));
 }
 
+/*
+    3-sample forward-difference gradient / normal.
 
+                  p + e*z
+                     |
+                     |
+           p + e*y --p-- p + e*x
+
+    This estimator assumes we already know f(p) from the raymarch hit.
+    That means we can reuse the current SDF value and only sample the
+    positive axis directions:
+
+      d/dx ~= f(p + e*x) - f(p)
+      d/dy ~= f(p + e*y) - f(p)
+      d/dz ~= f(p + e*z) - f(p)
+
+    Pros:
+      - cheapest of the three when the hit distance is already known
+    Cost:
+      - 3 extra SDF evaluations after the march step
+*/
 vec3 calcNormTri(vec3 p, float sdf_d) {
     float e = 0.001;
     vec3 v1 = vec3(1, 0, 0);
@@ -71,6 +157,15 @@ vec3 calcNormTri(vec3 p, float sdf_d) {
     ));
 }
 
+/*
+    Camera + raymarch:
+
+      camera ----ray----> bounding sphere ----> warped surface
+
+    The cheap bounding-sphere test rejects obvious misses before we spend
+    time marching the noisy SDF. On hit, we estimate the gradient and map
+    the normal from [-1, 1] into display RGB [0, 1].
+*/
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 invRes = 1.0 / iResolution.xy;
     vec2 uv = fragCoord * invRes * 2.0 - 1.0;
@@ -103,6 +198,14 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
                 p = camera + rayDir * t;
                 float d = calcDist(p);
                 if (d < EPS) {
+                    // Swap between normal estimators here:
+                    //
+                    //   normalize(p)     : analytic sphere normal only
+                    //   calcNorm(p)      : 6-sample central difference
+                    //   calcNormTetra(p) : 4-sample tetrahedral estimate
+                    //   calcNormTri(p,d) : 3-sample forward difference
+                    //
+                    // The chosen normal is visualized directly as color.
                     // vec3 normal = normalize(p);
                     // vec3 normal = calcNorm(p);
                     // vec3 normal = calcNormTetra(p);
