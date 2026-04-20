@@ -76,7 +76,11 @@ The three extra shaders in this repo are visual explanations of the probe layout
 - [`central_6sample.frag`](./central_6sample.frag):
   shows the standard central-difference probe positions at `±X`, `±Y`, and `±Z`, with full axis bars through the origin
 
-  GitHub asset URL: add after export
+
+
+https://github.com/user-attachments/assets/da42fde3-f1c9-40df-a1a0-b99885b61551
+
+
 
 - [`tri_3sample.frag`](./tri_3sample.frag):
   shows the 3 forward-difference probe positions at `+X`, `+Y`, and `+Z`, connected back to the origin
