@@ -71,7 +71,12 @@ vec3 normal = calcNormTri(p, d);      // 3-sample forward difference + current d
 
 ## 🎥 Gradient Demo Shaders
 
-The two extra shaders in this repo are visual explanations of the probe layouts:
+The three extra shaders in this repo are visual explanations of the probe layouts:
+
+- [`central_6sample.frag`](./central_6sample.frag):
+  shows the standard central-difference probe positions at `±X`, `±Y`, and `±Z`, with full axis bars through the origin
+
+  GitHub asset URL: add after export
 
 - [`tri_3sample.frag`](./tri_3sample.frag):
   shows the 3 forward-difference probe positions at `+X`, `+Y`, and `+Z`, connected back to the origin
@@ -90,7 +95,7 @@ https://github.com/user-attachments/assets/badf1b8a-246c-4d6a-a11d-80c3235d9cc1
 
 
 
-These demo shaders visualize where the samples are taken. The actual reduced-sample gradient estimators used by the sphere shader are the `calcNormTri(...)` and `calcNormTetra(...)` functions inside [`sphere.frag`](./sphere.frag).
+These demo shaders visualize where the samples are taken. The actual estimators used by the sphere shader are `calcNorm(...)`, `calcNormTri(...)`, and `calcNormTetra(...)` inside [`sphere.frag`](./sphere.frag).
 
 ## Reference
 

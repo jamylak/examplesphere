@@ -23,5 +23,6 @@ render() {
 }
 
 render "sphere.frag" "sphere-showcase.mp4"
+render "central_6sample.frag" "central-6sample.mp4"
 render "tri_3sample.frag" "tri-3sample.mp4"
 render "tetra_4sample.frag" "tetra-4sample.mp4"
