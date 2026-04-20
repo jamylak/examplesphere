@@ -1,5 +1,11 @@
 # 🌐 Example Sphere
 
+
+
+https://github.com/user-attachments/assets/f1ab9757-5688-4980-878d-81b24b54978c
+
+
+
 A tiny GLSL sphere shader
 
 It raymarches a sphere, warps the surface with animated 3D noise, and shades it using the surface normal, which gives it that shifting false-color / topology-map look.
