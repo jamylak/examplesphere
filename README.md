@@ -37,3 +37,7 @@ brew install jamylak/vsdf/vsdf
 For full installation notes, install instructions on other platforms, and source builds, see:
 
 - [`jamylak/vsdf`](https://github.com/jamylak/vsdf)
+
+## 📚 Reference
+
+- [inigoquilez.com](https://inigoquilez.com/)
